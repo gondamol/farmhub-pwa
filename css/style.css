@@ -18,7 +18,7 @@
     --primary-700: #166534;
     --primary-800: #14532d;
     --primary-900: #052e16;
-    
+
     /* Accent Colors */
     --accent-pink: #ec4899;
     --accent-blue: #3b82f6;
@@ -26,7 +26,7 @@
     --accent-yellow: #eab308;
     --accent-red: #ef4444;
     --accent-purple: #8b5cf6;
-    
+
     /* Neutral Colors */
     --gray-50: #f9fafb;
     --gray-100: #f3f4f6;
@@ -38,13 +38,13 @@
     --gray-700: #374151;
     --gray-800: #1f2937;
     --gray-900: #111827;
-    
+
     /* Semantic Colors */
     --success: #22c55e;
     --warning: #f59e0b;
     --danger: #ef4444;
     --info: #3b82f6;
-    
+
     /* Spacing */
     --space-xs: 4px;
     --space-sm: 8px;
@@ -52,20 +52,20 @@
     --space-lg: 24px;
     --space-xl: 32px;
     --space-2xl: 48px;
-    
+
     /* Border Radius */
     --radius-sm: 6px;
     --radius-md: 12px;
     --radius-lg: 16px;
     --radius-xl: 24px;
     --radius-full: 9999px;
-    
+
     /* Shadows */
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
     --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
     --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
-    
+
     /* Typography */
     --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --font-size-xs: 11px;
@@ -75,12 +75,12 @@
     --font-size-xl: 20px;
     --font-size-2xl: 24px;
     --font-size-3xl: 30px;
-    
+
     /* Layout */
     --header-height: 56px;
     --sidebar-width: 280px;
     --bottom-nav-height: 64px;
-    
+
     /* Transitions */
     --transition-fast: 150ms ease;
     --transition-base: 250ms ease;
@@ -90,7 +90,9 @@
 /* ============================================
    RESET & BASE STYLES
    ============================================ */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -132,7 +134,9 @@ img {
     display: block;
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
     font-family: inherit;
     font-size: var(--font-size-base);
 }
@@ -144,15 +148,37 @@ input, select, textarea {
     display: none !important;
 }
 
-.text-success { color: var(--success); }
-.text-warning { color: var(--warning); }
-.text-danger { color: var(--danger); }
-.text-info { color: var(--info); }
+.text-success {
+    color: var(--success);
+}
 
-.bg-success { background-color: var(--success); }
-.bg-warning { background-color: var(--warning); }
-.bg-danger { background-color: var(--danger); }
-.bg-info { background-color: var(--info); }
+.text-warning {
+    color: var(--warning);
+}
+
+.text-danger {
+    color: var(--danger);
+}
+
+.text-info {
+    color: var(--info);
+}
+
+.bg-success {
+    background-color: var(--success);
+}
+
+.bg-warning {
+    background-color: var(--warning);
+}
+
+.bg-danger {
+    background-color: var(--danger);
+}
+
+.bg-info {
+    background-color: var(--info);
+}
 
 /* ============================================
    SPLASH SCREEN
@@ -199,7 +225,7 @@ input, select, textarea {
 .splash-loader {
     width: 40px;
     height: 40px;
-    border: 3px solid rgba(255,255,255,0.3);
+    border: 3px solid rgba(255, 255, 255, 0.3);
     border-top-color: white;
     border-radius: 50%;
     margin: 0 auto;
@@ -207,12 +233,21 @@ input, select, textarea {
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 @keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
 }
 
 /* ============================================
@@ -281,7 +316,7 @@ input, select, textarea {
 }
 
 .header-btn:active {
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .header-btn i {
@@ -295,13 +330,19 @@ input, select, textarea {
     font-weight: 600;
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
 /* ============================================
    SIDEBAR
    ============================================ */
 .sidebar-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     z-index: 199;
     opacity: 0;
     visibility: hidden;
@@ -428,7 +469,8 @@ input, select, textarea {
     transition: all var(--transition-fast);
 }
 
-.menu-item:hover, .menu-item:active {
+.menu-item:hover,
+.menu-item:active {
     background: var(--gray-100);
 }
 
@@ -492,7 +534,7 @@ input, select, textarea {
     background: white;
     display: flex;
     align-items: stretch;
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     z-index: 100;
     padding-bottom: env(safe-area-inset-bottom, 0);
 }
@@ -848,7 +890,7 @@ input, select, textarea {
 .modal-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     opacity: 0;
     transition: opacity var(--transition-base);
 }
@@ -972,6 +1014,7 @@ input, select, textarea {
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -1105,8 +1148,13 @@ input, select, textarea {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 /* Goat List */
@@ -1141,32 +1189,32 @@ input, select, textarea {
     .bottom-nav {
         display: none;
     }
-    
+
     .main-content {
         padding-bottom: var(--space-lg);
         margin-left: var(--sidebar-width);
     }
-    
+
     .app-header {
         left: var(--sidebar-width);
     }
-    
+
     .sidebar {
         transform: translateX(0);
     }
-    
+
     .sidebar-overlay {
         display: none;
     }
-    
+
     .sidebar-close {
         display: none;
     }
-    
+
     #menu-btn {
         display: none;
     }
-    
+
     .stats-grid {
         grid-template-columns: repeat(4, 1fr);
     }

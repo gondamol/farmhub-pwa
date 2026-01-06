@@ -28,6 +28,7 @@ const App = {
             this.setupOfflineDetection();
             this.setupSidebar();
             this.setupQuickAdd();
+            this.setupSearch();
 
             // Load initial page
             await this.navigate('dashboard');
@@ -212,6 +213,20 @@ const App = {
         window.addEventListener('online', updateOnlineStatus);
         window.addEventListener('offline', updateOnlineStatus);
         updateOnlineStatus();
+    },
+
+    // ============================================
+    // SEARCH
+    // ============================================
+    setupSearch() {
+        const searchBtn = document.getElementById('search-btn');
+        if (searchBtn) {
+            searchBtn.addEventListener('click', () => {
+                if (window.Search) {
+                    Search.openSearch();
+                }
+            });
+        }
     }
 };
 
