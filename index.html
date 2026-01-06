@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#166534">
+    <meta name="description" content="FarmHub - Smart Goat Farm Management for Kenyan Farmers">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FarmHub">
+
+    <title>FarmHub - Goat Farm Manager</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="assets/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- App Container -->
+    <div id="app">
+        <!-- Splash Screen -->
+        <div id="splash-screen" class="splash-screen">
+            <div class="splash-content">
+                <div class="splash-icon">🐐</div>
+                <h1>FarmHub</h1>
+                <p>Smart Goat Farm Management</p>
+                <div class="splash-loader"></div>
+            </div>
+        </div>
+
+        <!-- Offline Banner -->
+        <div id="offline-banner" class="offline-banner hidden">
+            <i class="fas fa-wifi-slash"></i>
+            <span>You're offline. Changes will sync when connected.</span>
+        </div>
+
+        <!-- Main App Shell -->
+        <div id="app-shell" class="app-shell hidden">
+            <!-- Header -->
+            <header id="app-header" class="app-header">
+                <button id="menu-btn" class="header-btn" aria-label="Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 id="page-title" class="header-title">Dashboard</h1>
+                <button id="sync-btn" class="header-btn" aria-label="Sync">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </header>
+
+            <!-- Sidebar Overlay -->
+            <div id="sidebar-overlay" class="sidebar-overlay hidden"></div>
+
+            <!-- Sidebar Navigation -->
+            <nav id="sidebar" class="sidebar">
+                <div class="sidebar-header">
+                    <div class="sidebar-logo">
+                        <span class="logo-icon">🐐</span>
+                        <span class="logo-text">FarmHub</span>
+                    </div>
+                    <button id="sidebar-close" class="sidebar-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="sidebar-user">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name">My Farm</span>
+                        <span class="user-location">Rachuonyo North, Homabay</span>
+                    </div>
+                </div>
+
+                <ul class="sidebar-menu">
+                    <li class="menu-section">Main</li>
+                    <li>
+                        <a href="#" class="menu-item active" data-page="dashboard">
+                            <i class="fas fa-home"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="menu-item" data-page="goats">
+                            <i class="fas fa-paw"></i>
+                            <span>My Goats</span>
+                            <span class="menu-badge" id="goat-count">0</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-section">Health</li>
+                    <li>
+                        <a href="#" class="menu-item" data-page="vaccinations">
+                            <i class="fas fa-syringe"></i>
+                            <span>Vaccinations</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="menu-item" data-page="deworming">
+                            <i class="fas fa-pills"></i>
+                            <span>Deworming</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-section">Breeding</li>
+                    <li>
+                        <a href="#" class="menu-item" data-page="breeding">
+                            <i class="fas fa-heart"></i>
+                            <span>Breeding</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="menu-item" data-page="kidding">
+                            <i class="fas fa-baby"></i>
+                            <span>Kidding</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-section">Finance</li>
+                    <li>
+                        <a href="#" class="menu-item" data-page="finances">
+                            <i class="fas fa-coins"></i>
+                            <span>Finances</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="menu-item" data-page="projections">
+                            <i class="fas fa-chart-line"></i>
+                            <span>5-Year Projection</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-section">Resources</li>
+                    <li>
+                        <a href="#" class="menu-item" data-page="guides">
+                            <i class="fas fa-book"></i>
+                            <span>Farming Guides</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="menu-item" data-page="reminders">
+                            <i class="fas fa-bell"></i>
+                            <span>Reminders</span>
+                            <span class="menu-badge warning" id="reminder-count">0</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-section">Data</li>
+                    <li>
+                        <a href="#" class="menu-item" data-page="backup">
+                            <i class="fas fa-download"></i>
+                            <span>Export/Import</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="sidebar-footer">
+                    <p>FarmHub v2.0</p>
+                    <p>Made for Kenyan Farmers 🇰🇪</p>
+                </div>
+            </nav>
+
+            <!-- Main Content Area -->
+            <main id="main-content" class="main-content">
+                <!-- Pages will be loaded here dynamically -->
+            </main>
+
+            <!-- Bottom Navigation (Mobile) -->
+            <nav id="bottom-nav" class="bottom-nav">
+                <a href="#" class="bottom-nav-item active" data-page="dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="#" class="bottom-nav-item" data-page="goats">
+                    <i class="fas fa-paw"></i>
+                    <span>Goats</span>
+                </a>
+                <a href="#" class="bottom-nav-item add-btn" data-action="quick-add">
+                    <i class="fas fa-plus"></i>
+                </a>
+                <a href="#" class="bottom-nav-item" data-page="breeding">
+                    <i class="fas fa-heart"></i>
+                    <span>Breeding</span>
+                </a>
+                <a href="#" class="bottom-nav-item" data-page="finances">
+                    <i class="fas fa-coins"></i>
+                    <span>Finance</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- Quick Add Modal -->
+        <div id="quick-add-modal" class="modal hidden">
+            <div class="modal-overlay"></div>
+            <div class="modal-sheet">
+                <div class="modal-handle"></div>
+                <h2 class="modal-title">Quick Add</h2>
+                <div class="quick-add-grid">
+                    <button class="quick-add-btn" data-action="add-goat">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>New Goat</span>
+                    </button>
+                    <button class="quick-add-btn" data-action="add-vaccination">
+                        <i class="fas fa-syringe"></i>
+                        <span>Vaccination</span>
+                    </button>
+                    <button class="quick-add-btn" data-action="add-deworming">
+                        <i class="fas fa-pills"></i>
+                        <span>Deworming</span>
+                    </button>
+                    <button class="quick-add-btn" data-action="add-breeding">
+                        <i class="fas fa-heart"></i>
+                        <span>Breeding</span>
+                    </button>
+                    <button class="quick-add-btn" data-action="add-kidding">
+                        <i class="fas fa-baby"></i>
+                        <span>Kidding</span>
+                    </button>
+                    <button class="quick-add-btn" data-action="add-expense">
+                        <i class="fas fa-minus-circle"></i>
+                        <span>Expense</span>
+                    </button>
+                    <button class="quick-add-btn" data-action="add-income">
+                        <i class="fas fa-plus-circle text-success"></i>
+                        <span>Income</span>
+                    </button>
+                    <button class="quick-add-btn" data-action="add-weight">
+                        <i class="fas fa-weight"></i>
+                        <span>Weight</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div id="toast-container" class="toast-container"></div>
+    </div>
+
+    <!-- Page Templates -->
+    <template id="dashboard-template">
+        <div class="page dashboard-page">
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="fas fa-paw"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-value" id="stat-total-goats">0</span>
+                        <span class="stat-label">Total Goats</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon pink">
+                        <i class="fas fa-venus"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-value" id="stat-does">0</span>
+                        <span class="stat-label">Does</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fas fa-mars"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-value" id="stat-bucks">0</span>
+                        <span class="stat-label">Bucks</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-value" id="stat-pregnant">0</span>
+                        <span class="stat-label">Pregnant</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="section">
+                <h2 class="section-title">Quick Actions</h2>
+                <div class="action-grid">
+                    <button class="action-card" data-action="add-goat">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Add Goat</span>
+                    </button>
+                    <button class="action-card" data-action="add-vaccination">
+                        <i class="fas fa-syringe"></i>
+                        <span>Vaccinate</span>
+                    </button>
+                    <button class="action-card" data-action="add-deworming">
+                        <i class="fas fa-pills"></i>
+                        <span>Deworm</span>
+                    </button>
+                    <button class="action-card" data-action="add-breeding">
+                        <i class="fas fa-heart"></i>
+                        <span>Breeding</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Upcoming Tasks -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-bell text-warning"></i>
+                        Upcoming Tasks
+                    </h2>
+                    <a href="#" class="section-link" data-page="reminders">View All</a>
+                </div>
+                <div id="upcoming-tasks" class="card-list">
+                    <div class="empty-state small">
+                        <i class="fas fa-check-circle"></i>
+                        <p>All caught up! No pending tasks.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Pregnancies -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-heart text-danger"></i>
+                        Active Pregnancies
+                    </h2>
+                    <a href="#" class="section-link" data-page="breeding">View All</a>
+                </div>
+                <div id="active-pregnancies" class="card-list">
+                    <div class="empty-state small">
+                        <i class="fas fa-heart"></i>
+                        <p>No active pregnancies.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Summary -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-coins text-warning"></i>
+                        This Month
+                    </h2>
+                    <a href="#" class="section-link" data-page="finances">View All</a>
+                </div>
+                <div class="finance-summary">
+                    <div class="finance-item income">
+                        <span class="finance-label">Income</span>
+                        <span class="finance-value" id="monthly-income">KES 0</span>
+                    </div>
+                    <div class="finance-item expense">
+                        <span class="finance-label">Expenses</span>
+                        <span class="finance-value" id="monthly-expense">KES 0</span>
+                    </div>
+                    <div class="finance-item profit">
+                        <span class="finance-label">Profit</span>
+                        <span class="finance-value" id="monthly-profit">KES 0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Scripts -->
+    <script src="js/db.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/projections.js"></script>
+    <script src="js/sync.js"></script>
+    <script src="js/pages.js"></script>
+    <script src="js/app.js"></script>
+
+    <!-- Register Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker registered'))
+                .catch(err => console.log('Service Worker registration failed:', err));
+        }
+    </script>
+</body>
+
+</html>
