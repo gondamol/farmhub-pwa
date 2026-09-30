@@ -156,10 +156,10 @@ const Pages = {
                     <div class="card-body" style="text-align: center; padding: 24px;">
                         <div class="list-item-avatar ${goat.sex === 'Female' ? 'female' : 'male'}" 
                              style="width: 80px; height: 80px; margin: 0 auto 16px; font-size: 32px;">
-                            ${goat.tagId?.substring(0, 2) || '??'}
+                            ${escapeHtml(goat.tagId?.substring(0, 2) || '??')}
                         </div>
-                        <h2 style="margin-bottom: 4px;">${goat.tagId}</h2>
-                        ${goat.name ? `<p style="color: var(--gray-500); margin-bottom: 8px;">${goat.name}</p>` : ''}
+                        <h2 style="margin-bottom: 4px;">${escapeHtml(goat.tagId)}</h2>
+                        ${goat.name ? `<p style="color: var(--gray-500); margin-bottom: 8px;">${escapeHtml(goat.name)}</p>` : ''}
                         <span class="badge badge-${goat.status === 'Active' ? 'success' : 'info'}">${goat.status}</span>
                         <span class="badge badge-${goat.sex === 'Female' ? 'danger' : 'info'}" style="margin-left: 4px;">${goat.sex}</span>
                     </div>
@@ -208,7 +208,7 @@ const Pages = {
                     <div class="card-body" style="padding: 0;">
                         ${vaccinations.length > 0 ? vaccinations.slice(0, 5).map(v => `
                             <div style="padding: 12px 16px; border-bottom: 1px solid var(--gray-100);">
-                                <strong>${v.vaccineName || 'Vaccination'}</strong>
+                                <strong>${escapeHtml(v.vaccineName || 'Vaccination')}</strong>
                                 <span style="float: right; color: var(--gray-500);">${Components.formatDate(v.dateGiven)}</span>
                             </div>
                         `).join('') : '<div style="padding: 16px; text-align: center; color: var(--gray-400);">No vaccinations recorded</div>'}
@@ -223,7 +223,7 @@ const Pages = {
                     <div class="card-body" style="padding: 0;">
                         ${dewormings.length > 0 ? dewormings.slice(0, 5).map(d => `
                             <div style="padding: 12px 16px; border-bottom: 1px solid var(--gray-100);">
-                                <strong>${d.dewormerName || 'Deworming'}</strong>
+                                <strong>${escapeHtml(d.dewormerName || 'Deworming')}</strong>
                                 ${d.famachaScore ? `<span class="badge badge-warning" style="margin-left: 8px;">FAMACHA ${d.famachaScore}</span>` : ''}
                                 <span style="float: right; color: var(--gray-500);">${Components.formatDate(d.dateGiven)}</span>
                             </div>
@@ -245,7 +245,7 @@ const Pages = {
         return `
             <div style="padding: 12px 16px; border-bottom: 1px solid var(--gray-100); display: flex; justify-content: space-between;">
                 <span style="color: var(--gray-500);">${label}</span>
-                <span style="font-weight: 500;">${value}</span>
+                <span style="font-weight: 500;">${escapeHtml(value)}</span>
             </div>
         `;
     },
@@ -277,10 +277,10 @@ const Pages = {
                     <div class="card-list">
                         ${does.slice(0, 5).map(doe => `
                             <div class="list-item">
-                                <div class="list-item-avatar female">${doe.tagId?.substring(0, 2)}</div>
+                                <div class="list-item-avatar female">${escapeHtml(doe.tagId?.substring(0, 2))}</div>
                                 <div class="list-item-content">
-                                    <div class="list-item-title">${doe.tagId}${doe.name ? ' - ' + doe.name : ''}</div>
-                                    <div class="list-item-subtitle">${doe.breed || 'East African'}</div>
+                                    <div class="list-item-title">${escapeHtml(doe.tagId)}${doe.name ? ' - ' + escapeHtml(doe.name) : ''}</div>
+                                    <div class="list-item-subtitle">${escapeHtml(doe.breed || 'East African')}</div>
                                 </div>
                             </div>
                         `).join('')}
@@ -294,10 +294,10 @@ const Pages = {
                     <div class="card-list">
                         ${bucks.slice(0, 3).map(buck => `
                             <div class="list-item">
-                                <div class="list-item-avatar male">${buck.tagId?.substring(0, 2)}</div>
+                                <div class="list-item-avatar male">${escapeHtml(buck.tagId?.substring(0, 2))}</div>
                                 <div class="list-item-content">
-                                    <div class="list-item-title">${buck.tagId}${buck.name ? ' - ' + buck.name : ''}</div>
-                                    <div class="list-item-subtitle">${buck.breed || 'East African'}</div>
+                                    <div class="list-item-title">${escapeHtml(buck.tagId)}${buck.name ? ' - ' + escapeHtml(buck.name) : ''}</div>
+                                    <div class="list-item-subtitle">${escapeHtml(buck.breed || 'East African')}</div>
                                 </div>
                             </div>
                         `).join('')}
@@ -372,7 +372,7 @@ const Pages = {
                                 <div style="padding: 12px 16px; border-bottom: 1px solid var(--gray-100); display: flex; justify-content: space-between; align-items: center;">
                                     <div>
                                         <div style="font-weight: 500;">${r.subcategory || r.category}</div>
-                                        <div style="font-size: 13px; color: var(--gray-500);">${Components.formatDate(r.date)}${r.description ? ' • ' + r.description : ''}</div>
+                                        <div style="font-size: 13px; color: var(--gray-500);">${Components.formatDate(r.date)}${r.description ? ' • ' + escapeHtml(r.description) : ''}</div>
                                     </div>
                                     <div style="font-weight: 600; color: ${r.category === 'Income' ? 'var(--success)' : 'var(--danger)'};">
                                         ${r.category === 'Income' ? '+' : '-'}${Components.formatMoney(r.amount)}
@@ -407,7 +407,7 @@ const Pages = {
                         ${vaccineTypes.map(v => `
                             <div style="padding: 12px 16px; border-bottom: 1px solid var(--gray-100);">
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <strong>${v.name}</strong>
+                                    <strong>${escapeHtml(v.name)}</strong>
                                     ${v.isCritical ? '<span class="badge badge-danger">Critical</span>' : ''}
                                 </div>
                                 <div style="font-size: 13px; color: var(--gray-500); margin-top: 4px;">
@@ -459,7 +459,7 @@ const Pages = {
                         ${dewormerTypes.map(d => `
                             <div style="padding: 12px 16px; border-bottom: 1px solid var(--gray-100);">
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <strong>${d.name}</strong>
+                                    <strong>${escapeHtml(d.name)}</strong>
                                     <span class="badge badge-info">${d.drugClass}</span>
                                 </div>
                             </div>
@@ -597,7 +597,7 @@ const Pages = {
 
         // Auto-calculate on load
         setTimeout(() => {
-            document.getElementById('calculate-btn').click();
+            document.getElementById('calculate-btn')?.click(); // page may have changed
         }, 100);
     },
 

@@ -4,26 +4,51 @@
  */
 
 const DB_NAME = 'FarmHubDB';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 // Database instance
 let db = null;
 
-// Store definitions
+// Store definitions. Indexes listed here are created on upgrade for both new
+// and existing stores, so adding an index only requires bumping DB_VERSION.
 const STORES = {
-    goats: { keyPath: 'id', autoIncrement: true },
-    vaccinations: { keyPath: 'id', autoIncrement: true },
-    dewormings: { keyPath: 'id', autoIncrement: true },
-    breedings: { keyPath: 'id', autoIncrement: true },
+    goats: { keyPath: 'id', autoIncrement: true, indexes: { tagId: { unique: true }, status: {}, sex: {} } },
+    vaccinations: { keyPath: 'id', autoIncrement: true, indexes: { goatId: {}, nextDueDate: {} } },
+    dewormings: { keyPath: 'id', autoIncrement: true, indexes: { goatId: {} } },
+    breedings: { keyPath: 'id', autoIncrement: true, indexes: { doeId: {}, outcome: {} } },
     kiddings: { keyPath: 'id', autoIncrement: true },
     healthEvents: { keyPath: 'id', autoIncrement: true },
     weights: { keyPath: 'id', autoIncrement: true },
-    finances: { keyPath: 'id', autoIncrement: true },
-    reminders: { keyPath: 'id', autoIncrement: true },
+    finances: { keyPath: 'id', autoIncrement: true, indexes: { category: {}, date: {} } },
+    reminders: { keyPath: 'id', autoIncrement: true, indexes: { dueDate: {}, isCompleted: {} } },
     vaccineTypes: { keyPath: 'id', autoIncrement: true },
     dewormerTypes: { keyPath: 'id', autoIncrement: true },
     settings: { keyPath: 'key' }
 };
+
+// Fields that reference another record's auto-increment id. Form values and
+// data-* attributes arrive as strings, so these are coerced to numbers on
+// write or index lookups silently return nothing.
+const REF_FIELDS = ['goatId', 'doeId', 'buckId', 'damId', 'sireId', 'vaccineTypeId', 'dewormerTypeId', 'breedingId'];
+
+function toKey(storeName, id) {
+    if (STORES[storeName]?.autoIncrement && typeof id === 'string' && /^\d+$/.test(id)) {
+        return Number(id);
+    }
+    return id;
+}
+
+function normalizeRefs(record) {
+    for (const field of REF_FIELDS) {
+        const value = record[field];
+        if (value === '') {
+            record[field] = null;
+        } else if (typeof value === 'string' && /^\d+$/.test(value)) {
+            record[field] = Number(value);
+        }
+    }
+    return record;
+}
 
 /**
  * Initialize the database
@@ -40,34 +65,29 @@ async function initDatabase() {
         
         request.onupgradeneeded = (event) => {
             const database = event.target.result;
+            const transaction = event.target.transaction;
             
-            // Create all object stores
-            for (const [storeName, options] of Object.entries(STORES)) {
-                if (!database.objectStoreNames.contains(storeName)) {
-                    const store = database.createObjectStore(storeName, options);
-                    
-                    // Add indexes
-                    if (storeName === 'goats') {
-                        store.createIndex('tagId', 'tagId', { unique: true });
-                        store.createIndex('status', 'status', { unique: false });
-                        store.createIndex('sex', 'sex', { unique: false });
+            for (const [storeName, { indexes = {}, ...options }] of Object.entries(STORES)) {
+                const store = database.objectStoreNames.contains(storeName)
+                    ? transaction.objectStore(storeName)
+                    : database.createObjectStore(storeName, options);
+                
+                for (const [indexName, indexOptions] of Object.entries(indexes)) {
+                    if (!store.indexNames.contains(indexName)) {
+                        store.createIndex(indexName, indexName, { unique: false, ...indexOptions });
                     }
-                    if (storeName === 'vaccinations') {
-                        store.createIndex('goatId', 'goatId', { unique: false });
-                        store.createIndex('nextDueDate', 'nextDueDate', { unique: false });
-                    }
-                    if (storeName === 'breedings') {
-                        store.createIndex('doeId', 'doeId', { unique: false });
-                        store.createIndex('outcome', 'outcome', { unique: false });
-                    }
-                    if (storeName === 'finances') {
-                        store.createIndex('category', 'category', { unique: false });
-                        store.createIndex('date', 'date', { unique: false });
-                    }
-                    if (storeName === 'reminders') {
-                        store.createIndex('dueDate', 'dueDate', { unique: false });
-                        store.createIndex('isCompleted', 'isCompleted', { unique: false });
-                    }
+                }
+                
+                // v1 stored reference ids as strings; convert them in place
+                if (event.oldVersion > 0 && event.oldVersion < 2) {
+                    store.openCursor().onsuccess = (e) => {
+                        const cursor = e.target.result;
+                        if (!cursor) return;
+                        const before = JSON.stringify(cursor.value);
+                        const after = normalizeRefs({ ...cursor.value });
+                        if (JSON.stringify(after) !== before) cursor.update(after);
+                        cursor.continue();
+                    };
                 }
             }
         };
@@ -82,6 +102,7 @@ async function add(storeName, data) {
         const transaction = db.transaction(storeName, 'readwrite');
         const store = transaction.objectStore(storeName);
         
+        normalizeRefs(data);
         data.createdAt = new Date().toISOString();
         data.updatedAt = new Date().toISOString();
         data.syncStatus = 'pending';
@@ -97,8 +118,10 @@ async function update(storeName, id, data) {
         const transaction = db.transaction(storeName, 'readwrite');
         const store = transaction.objectStore(storeName);
         
+        normalizeRefs(data);
+        
         // First get the existing record
-        const getRequest = store.get(id);
+        const getRequest = store.get(toKey(storeName, id));
         getRequest.onsuccess = () => {
             const existing = getRequest.result;
             if (!existing) {
@@ -118,7 +141,7 @@ async function remove(storeName, id) {
     return new Promise((resolve, reject) => {
         const transaction = db.transaction(storeName, 'readwrite');
         const store = transaction.objectStore(storeName);
-        const request = store.delete(id);
+        const request = store.delete(toKey(storeName, id));
         request.onsuccess = () => resolve();
         request.onerror = () => reject(request.error);
     });
@@ -128,7 +151,7 @@ async function get(storeName, id) {
     return new Promise((resolve, reject) => {
         const transaction = db.transaction(storeName, 'readonly');
         const store = transaction.objectStore(storeName);
-        const request = store.get(id);
+        const request = store.get(toKey(storeName, id));
         request.onsuccess = () => resolve(request.result);
         request.onerror = () => reject(request.error);
     });
@@ -149,7 +172,7 @@ async function getAllByIndex(storeName, indexName, value) {
         const transaction = db.transaction(storeName, 'readonly');
         const store = transaction.objectStore(storeName);
         const index = store.index(indexName);
-        const request = index.getAll(value);
+        const request = index.getAll(REF_FIELDS.includes(indexName) ? toKey(storeName, value) : value);
         request.onsuccess = () => resolve(request.result);
         request.onerror = () => reject(request.error);
     });
@@ -390,6 +413,9 @@ const Reminders = {
 /**
  * Seed default data
  */
+// Dosing and safety text shown to farmers; have a vet confirm any change.
+const ALBENDAZOLE_NOTE = 'Broad spectrum, also treats liver fluke. Do NOT give in the first month of pregnancy (can cause birth defects). Dose by weight as on the label; goats need a higher dose than sheep.';
+
 async function seedDefaultData() {
     const vaccineTypes = await getAll('vaccineTypes');
     if (vaccineTypes.length === 0) {
@@ -410,14 +436,20 @@ async function seedDefaultData() {
     const dewormerTypes = await getAll('dewormerTypes');
     if (dewormerTypes.length === 0) {
         const defaultDewormers = [
-            { name: 'Albendazole', drugClass: 'Benzimidazoles', notes: 'Broad spectrum. Safe during pregnancy. Give 7.5mg/kg.' },
-            { name: 'Fenbendazole', drugClass: 'Benzimidazoles', notes: 'Broad spectrum. Safe for young kids.' },
+            { name: 'Albendazole', drugClass: 'Benzimidazoles', notes: ALBENDAZOLE_NOTE },
+            { name: 'Fenbendazole', drugClass: 'Benzimidazoles', notes: 'Broad spectrum. Safe for young kids and pregnant does.' },
             { name: 'Ivermectin', drugClass: 'Macrocyclic Lactones', notes: 'Effective against roundworms and external parasites. 0.2mg/kg.' },
             { name: 'Levamisole', drugClass: 'Imidazothiazoles', notes: 'Fast acting. Do not overdose - narrow safety margin.' }
         ];
         
         for (const dewormer of defaultDewormers) {
             await add('dewormerTypes', dewormer);
+        }
+    } else {
+        // Early builds wrongly seeded albendazole as safe in pregnancy
+        const albendazole = dewormerTypes.find(d => d.name === 'Albendazole' && /Safe during pregnancy/.test(d.notes || ''));
+        if (albendazole) {
+            await update('dewormerTypes', albendazole.id, { notes: ALBENDAZOLE_NOTE });
         }
     }
 }

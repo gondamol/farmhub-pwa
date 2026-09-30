@@ -3,16 +3,34 @@
  * Enables offline functionality
  */
 
-const CACHE_NAME = 'farmhub-v1';
+// Bump CACHE_NAME whenever any file below changes, or installed clients keep
+// serving the old copy (cache-first).
+const CACHE_NAME = 'farmhub-v2';
+
+// Paths are relative to the SW scope so the app also works from a subpath
+// (e.g. GitHub Pages at /farmhub-web/). Keep in sync with index.html.
 const STATIC_ASSETS = [
-    '/',
-    '/index.html',
-    '/css/style.css',
-    '/js/db.js',
-    '/js/components.js',
-    '/js/pages.js',
-    '/js/app.js',
-    '/manifest.json',
+    './',
+    'index.html',
+    'manifest.json',
+    'css/style.css',
+    'js/db.js',
+    'js/components.js',
+    'js/projections.js',
+    'js/sync.js',
+    'js/photos.js',
+    'js/search.js',
+    'js/pages.js',
+    'js/app.js',
+    'assets/icons/icon.svg',
+    'assets/icons/icon-72.png',
+    'assets/icons/icon-96.png',
+    'assets/icons/icon-128.png',
+    'assets/icons/icon-144.png',
+    'assets/icons/icon-152.png',
+    'assets/icons/icon-192.png',
+    'assets/icons/icon-384.png',
+    'assets/icons/icon-512.png',
     'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
 ];
@@ -69,8 +87,11 @@ self.addEventListener('fetch', (event) => {
 
                 return fetch(event.request)
                     .then((response) => {
-                        // Don't cache non-successful responses
-                        if (!response || response.status !== 200 || response.type !== 'basic') {
+                        // Cache successful same-origin and CORS responses. CORS is
+                        // needed so font files (gstatic, Font Awesome webfonts)
+                        // referenced by the precached CSS work offline.
+                        if (!response || response.status !== 200 ||
+                            (response.type !== 'basic' && response.type !== 'cors')) {
                             return response;
                         }
 
@@ -86,7 +107,7 @@ self.addEventListener('fetch', (event) => {
                     .catch(() => {
                         // Return offline page if available
                         if (event.request.mode === 'navigate') {
-                            return caches.match('/index.html');
+                            return caches.match('index.html');
                         }
                     });
             })
@@ -113,11 +134,11 @@ self.addEventListener('push', (event) => {
     const data = event.data.json();
     const options = {
         body: data.body,
-        icon: '/assets/icons/icon-192.png',
-        badge: '/assets/icons/icon-72.png',
+        icon: 'assets/icons/icon-192.png',
+        badge: 'assets/icons/icon-72.png',
         vibrate: [100, 50, 100],
         data: {
-            url: data.url || '/'
+            url: data.url || './'
         }
     };
 

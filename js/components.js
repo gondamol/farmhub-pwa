@@ -4,6 +4,24 @@
  */
 
 // ============================================
+// HTML ESCAPING
+// ============================================
+/**
+ * Escape a value for interpolation into HTML text or a quoted attribute.
+ * Every user-entered or imported field rendered via innerHTML must go
+ * through this — backups and (future) cloud sync make them untrusted.
+ */
+function escapeHtml(value) {
+    if (value === null || value === undefined) return '';
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+// ============================================
 // TOAST NOTIFICATIONS
 // ============================================
 const Toast = {
@@ -139,13 +157,17 @@ const Form = {
     },
 
     createFieldHtml(field) {
-        const { name, label, type = 'text', required = false, options = [], value = '', placeholder = '' } = field;
+        const { name, type = 'text', required = false, options = [] } = field;
+        const label = escapeHtml(field.label);
+        const value = field.value ?? '';
+        const safeValue = escapeHtml(value);
+        const placeholder = escapeHtml(field.placeholder);
 
         let input = '';
 
         if (type === 'select') {
             const optionsHtml = options.map(opt =>
-                `<option value="${opt.value}" ${opt.value === value ? 'selected' : ''}>${opt.label}</option>`
+                `<option value="${escapeHtml(opt.value)}" ${String(opt.value) === String(value) ? 'selected' : ''}>${escapeHtml(opt.label)}</option>`
             ).join('');
             input = `<select class="form-control" name="${name}" id="${name}" ${required ? 'required' : ''}>
                 <option value="">Select ${label}</option>
@@ -153,10 +175,10 @@ const Form = {
             </select>`;
         } else if (type === 'textarea') {
             input = `<textarea class="form-control" name="${name}" id="${name}" rows="3" 
-                placeholder="${placeholder}" ${required ? 'required' : ''}>${value}</textarea>`;
+                placeholder="${placeholder}" ${required ? 'required' : ''}>${safeValue}</textarea>`;
         } else {
             input = `<input type="${type}" class="form-control" name="${name}" id="${name}" 
-                value="${value}" placeholder="${placeholder}" ${required ? 'required' : ''}>`;
+                value="${safeValue}" placeholder="${placeholder}" ${required ? 'required' : ''}>`;
         }
 
         return `
@@ -188,16 +210,16 @@ const Components = {
         item.style.cursor = 'pointer';
 
         const sexClass = goat.sex === 'Female' ? 'female' : 'male';
-        const initials = goat.tagId?.substring(0, 2) || '??';
+        const initials = escapeHtml(goat.tagId?.substring(0, 2) || '??');
         const age = FarmDB.Goats.formatAge(goat);
 
         item.innerHTML = `
             <div class="list-item-avatar ${sexClass}">${initials}</div>
             <div class="list-item-content">
-                <div class="list-item-title">${goat.tagId}${goat.name ? ' - ' + goat.name : ''}</div>
-                <div class="list-item-subtitle">${goat.breed || 'East African'} • ${age}</div>
+                <div class="list-item-title">${escapeHtml(goat.tagId)}${goat.name ? ' - ' + escapeHtml(goat.name) : ''}</div>
+                <div class="list-item-subtitle">${escapeHtml(goat.breed || 'East African')} • ${age}</div>
             </div>
-            <span class="badge badge-${goat.status === 'Active' ? 'success' : 'info'}">${goat.status}</span>
+            <span class="badge badge-${goat.status === 'Active' ? 'success' : 'info'}">${escapeHtml(goat.status)}</span>
         `;
 
         if (onClick) {
@@ -253,8 +275,8 @@ const Components = {
                 <i class="fas ${icon}"></i>
             </div>
             <div class="list-item-content">
-                <div class="list-item-title">${reminder.title}</div>
-                <div class="list-item-subtitle">${reminder.description || ''}</div>
+                <div class="list-item-title">${escapeHtml(reminder.title)}</div>
+                <div class="list-item-subtitle">${escapeHtml(reminder.description)}</div>
             </div>
             <span class="badge badge-${badgeClass}">${badgeText}</span>
         `;
@@ -317,6 +339,7 @@ const Components = {
 };
 
 // Export
+window.escapeHtml = escapeHtml;
 window.Toast = Toast;
 window.Modal = Modal;
 window.Form = Form;

@@ -128,7 +128,7 @@ const Search = {
             resultsContainer.innerHTML = `
                 <div class="empty-state small">
                     <i class="fas fa-search"></i>
-                    <p>No results found for "${query}"</p>
+                    <p>No results found for "${escapeHtml(query)}"</p>
                 </div>
             `;
             return;
@@ -140,8 +140,8 @@ const Search = {
                     <i class="fas ${r.icon}" style="color: var(--primary-600);"></i>
                 </div>
                 <div class="list-item-content">
-                    <div class="list-item-title">${r.title}</div>
-                    <div class="list-item-subtitle">${r.subtitle}</div>
+                    <div class="list-item-title">${escapeHtml(r.title)}</div>
+                    <div class="list-item-subtitle">${escapeHtml(r.subtitle)}</div>
                 </div>
                 <i class="fas fa-chevron-right" style="color: var(--gray-400);"></i>
             </div>

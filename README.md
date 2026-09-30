@@ -1,85 +1,70 @@
-# FarmHub Web App
+# FarmHub
 
-A Progressive Web App (PWA) for goat farm management.
+Offline-first goat farm management for Kenyan smallholders. FarmHub is a Progressive Web App (PWA): it installs from the browser onto any Android phone, works without a connection, and keeps all records on the device.
+
+**Status:** early pilot. Everything runs locally in the browser, with no accounts or cloud sync yet. See [docs/ROADMAP.md](docs/ROADMAP.md) for the path to a production service.
 
 ## Features
 
-- 🐐 **Herd Management** - Track all goats with profiles, photos, and genealogy
-- 💉 **Health Records** - Vaccinations, deworming, and health events
-- ❤️ **Breeding Management** - Track breeding, pregnancies, and kidding
-- 💰 **Financial Tracking** - Income, expenses, and profitability analysis
-- 🔔 **Smart Reminders** - Never miss a vaccination or kidding date
-- 📴 **Offline First** - Works without internet connection
-- 📱 **Mobile Friendly** - Install as an app on your phone
+| Area | What works today |
+|---|---|
+| Herd | Goat profiles (tag, breed, sex, dam/sire, source, purchase price), weights, search |
+| Health | Vaccination and deworming records with FAMACHA scores; seeded Kenyan vaccine list (PPR, CCPP, enterotoxaemia, goat pox, …) and dewormers |
+| Breeding | Service records with a 150-day gestation estimate, active pregnancies, kidding records |
+| Money | Income/expense ledger in KES with a monthly summary |
+| Planning | 5-year herd and cash-flow projection |
+| Reminders | Due vaccinations and upcoming kiddings |
+| Data | JSON export/import for backup and moving to a new phone |
+| Offline | Full app shell, fonts and icons cached by the service worker |
 
-## Installation
+## Running locally
 
-### Local Development
+No build step or dependencies are needed. Serve the folder over HTTP. `file://` won't work, because service workers and IndexedDB need a real origin.
 
-1. Open the folder in a local server:
-   ```bash
-   # Using Python
-   python -m http.server 8000
-   
-   # Or using Node.js
-   npx serve .
-   ```
-
-2. Open http://localhost:8000 in your browser
-
-### Deploy to GitHub Pages
-
-1. Create a new GitHub repository
-2. Push this folder to the repository
-3. Go to Settings → Pages → Source: main branch
-4. Access at: https://yourusername.github.io/farmhub-web/
-
-### Install as Mobile App
-
-1. Open the web app in Chrome on your phone
-2. Tap the menu (⋮) → "Add to Home Screen"
-3. The app will work offline!
-
-## Project Structure
-
-```
-farmhub-web/
-├── index.html          # Main HTML file
-├── manifest.json       # PWA configuration
-├── sw.js              # Service Worker (offline support)
-├── css/
-│   └── style.css      # All styles
-├── js/
-│   ├── db.js          # IndexedDB database
-│   ├── components.js  # UI components
-│   ├── pages.js       # Page renderers
-│   └── app.js         # Main application
-└── assets/
-    └── icons/         # App icons
+```bash
+python -m http.server 8000
 ```
 
-## Data Storage
+Open http://localhost:8000. To test the installed/offline experience, use Chrome DevTools → Application → Service Workers and tick **Offline**.
 
-All data is stored locally in your browser using IndexedDB. 
+## Deploying
 
-**Important:** Export your data regularly using the Export/Import feature!
+Upload the repository root to any static host (GitHub Pages, Cloudflare Pages, Netlify). All paths are relative, so hosting under a subpath such as `https://user.github.io/farmhub-web/` works.
 
-## Roadmap
+**For every release that changes a cached file, bump `CACHE_NAME` in [sw.js](sw.js).** Otherwise installed phones keep serving the old version.
 
-- [ ] Cloud sync (Cloudflare Workers)
-- [ ] Multi-device sync
-- [ ] 5-year financial projections
-- [ ] Photo upload for goats
-- [ ] Investment portal for external investors
+## Installing on a phone
 
-## Made for Kenyan Farmers 🇰🇪
+1. Open the app URL in Chrome on Android.
+2. Tap ⋮ → **Add to Home screen** (or **Install app**).
+3. Open it from the home screen. It works offline from then on.
 
-Built with specific features for East African goat farming:
-- Kenya-specific vaccines (PPR, CCPP)
-- FAMACHA scoring for deworming
-- KES currency
-- East African goat breeds
+## Your data
 
----
+Records live in the phone browser's IndexedDB. Clearing browser data, uninstalling Chrome or losing the phone deletes them. Until cloud sync ships, use **Export/Import** regularly and keep the JSON file somewhere safe (e.g. email it to yourself or save it to Google Drive).
 
-**Kazi iendelee! 🚀🐐**
+## Project layout
+
+```
+index.html        App shell; loads js/*.js in dependency order
+manifest.json     PWA install metadata
+sw.js             Service worker: precache + offline
+css/style.css     All styles
+js/db.js          IndexedDB schema, migrations, data access (FarmDB)
+js/components.js  Toast, Modal, Form builder, list items, escapeHtml
+js/pages.js       Page renderers
+js/app.js         Boot, navigation, add/edit actions
+js/projections.js 5-year projection model
+js/search.js      Global search
+js/sync.js        Cloud sync client (not yet enabled)
+js/photos.js      Photo capture/resize (not yet wired into pages)
+docs/ROADMAP.md   Competitive analysis, production plan, funding
+```
+
+Developer notes (architecture, conventions, gotchas) are in [CLAUDE.md](CLAUDE.md).
+
+## Built for Kenya 🇰🇪
+
+Kenya-specific vaccines (PPR, CCPP), FAMACHA scoring for barber's pole worm, KES currency, and common Kenyan breeds (East African, Galla, Boer, Toggenburg, Alpine and crosses).
+
+**Kazi iendelee! 🐐**
